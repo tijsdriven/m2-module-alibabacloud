@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!--
+  ~ 2022-2023 Tijs Driven Development
+  ~
+  ~ NOTICE OF LICENSE
+  ~
+  ~ This source file is subject to the Open Software License (OSL 3.0) that is available
+  ~ through the world-wide-web at this URL: http://www.opensource.org/licenses/OSL-3.0
+  ~ If you are unable to obtain it through the world-wide-web, please send an email
+  ~ to magento@tijsdriven.dev so a copy can be sent immediately.
+  ~
+  ~ @author Tijs van Raaij
+  ~ @copyright 2022-2023 Tijs Driven Development
+  ~ @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
+  -->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+  <system>
+    <section id="tdd_aliyun_oss_media" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+      <class>separator-top</class>
+      <label>Aliyun</label>
+      <tab>tijsdriven</tab>
+      <resource>TijsDriven_AliyunSts::configuration</resource>
+      <group id="general" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
+        <label>Aliyun Account Configuration</label>
+        <field id="access_key_id" translate="label" type="obscure" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+          <label>Access Key ID</label>
+        </field>
+        <field id="access_key_secret" translate="label" type="obscure" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+          <label>Access Key Secret</label>
+        </field>
+      </group>
+      <group id="sts_token" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
+        <field id="token_lifetime" translate="label comment" type="text" sortOrder="500" showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
+          <label>Token Lifetime</label>
+          <comment>In seconds (default: 3600)</comment>
+          <validate>validate-zero-or-greater validate-digits</validate>
+        </field>
+      </group>
+    </section>
+  </system>
+</config>
