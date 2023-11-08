@@ -16,13 +16,13 @@
 
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
   <system>
-    <section id="tdd_aliyun_oss_media" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+    <section id="tdd_alibabacloud_oss_media" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
       <class>separator-top</class>
-      <label>Aliyun</label>
+      <label>AlibabaCloud</label>
       <tab>tijsdriven</tab>
-      <resource>TijsDriven_AliyunSts::configuration</resource>
+      <resource>TijsDriven_AlibabaCloudSts::configuration</resource>
       <group id="general" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
-        <label>Aliyun Account Configuration</label>
+        <label>AlibabaCloud Account Configuration</label>
         <field id="access_key_id" translate="label" type="obscure" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
           <label>Access Key ID</label>
         </field>

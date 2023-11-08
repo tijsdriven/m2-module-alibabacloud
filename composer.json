@@ -1,6 +1,6 @@
 {
-  "name": "tijsdriven/m2-module-aliyun-sts",
-  "description": "Add Aliyun STS token support to Magento",
+  "name": "tijsdriven/m2-module-alibabacloud-sts",
+  "description": "Add AlibabaCloud STS token support to Magento",
   "type": "magento2-module",
   "version": "0.0.1",
   "license": "proprietary",
@@ -17,8 +17,8 @@
       "./src/registration.php"
     ],
     "psr-4": {
-      "TijsDriven\\AliyunSts\\": "src/",
-      "TijsDriven\\AliyunSts\\Test\\": "test/"
+      "TijsDriven\\AlibabaCloudSts\\": "src/",
+      "TijsDriven\\AlibabaCloudSts\\Test\\": "test/"
     }
   },
   "require": {
