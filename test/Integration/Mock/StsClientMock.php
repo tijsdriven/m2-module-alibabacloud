@@ -38,27 +38,32 @@ class StsClientMock extends Sts
 
     public function __construct(
         array $config = []
-    ) {
+    )
+    {
     }
 
     public static function getInstance($config = []): StsClientMock
     {
-        if(empty(static::$mock)) {
+        if (empty(static::$mock)) {
             static::$mock = new StsClientMock($config);
         }
         return static::$mock;
     }
+
     public function assumeRoleWithOptions($request, $runtime)
     {
-        if($this->exception) {
+        if ($this->exception) {
             throw new TeaUnableRetryError(new \AlibabaCloud\Tea\Request(), new TeaError([], $this->exceptionMessage, $this->exceptionCode));
         }
-        return AssumeRoleResponse::fromMap($this->response);
+        $response = AssumeRoleResponse::fromMap($this->response[0]);
+        array_shift($this->response);
+        return $response;
     }
 
-    public function setMockResponse(array $response): void
+    public function addMockResponse(array $response): self
     {
-        $this->response = $response;
+        $this->response[] = $response;
+        return $this;
     }
 
     public function setMockException(int $code, string $message)

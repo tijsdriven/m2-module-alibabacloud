@@ -19,8 +19,13 @@ declare(strict_types=1);
 namespace TijsDriven\AlibabaCloud\Model\Usecase;
 
 use AlibabaCloud\Tea\Exception\TeaUnableRetryError;
+use Magento\Framework\Api\DataObjectHelper;
+use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Reflection\DataObjectProcessor;
+use Magento\Framework\Serialize\SerializerInterface;
 use Psr\Log\LoggerInterface;
+use TijsDriven\AlibabaCloud\Api\Data\TokenResponseInterface;
 use TijsDriven\AlibabaCloud\Api\GetTokenInterface;
 use TijsDriven\AlibabaCloud\Model\Factory\AssumeRoleRequestFactory;
 use TijsDriven\AlibabaCloud\Model\Factory\RuntimeOptionsFactory;
@@ -34,6 +39,7 @@ class GetToken implements GetTokenInterface
 {
 
     const DEFAULT_TOKEN_LIFETIME_IN_SECONDS = 3600;
+    const CACHE_TAG = 'TIJSDRIVEN_ALIBABACLOUD_STS_TOKEN';
 
     public function __construct(
         protected StsClientFactory         $stsFactory,
@@ -41,6 +47,10 @@ class GetToken implements GetTokenInterface
         protected AssumeRoleRequestFactory $roleRequestFactory,
         protected RuntimeOptionsFactory    $optionsFactory,
         protected TokenResponseFactory     $tokenResponseFactory,
+        protected CacheInterface           $cache,
+        protected DataObjectHelper         $dataObjectHelper,
+        protected DataObjectProcessor      $objectProcessor,
+        protected SerializerInterface      $serializer,
         protected Context                  $context,
         protected LoggerInterface          $logger
     )
@@ -67,40 +77,52 @@ class GetToken implements GetTokenInterface
             throw new LocalizedException(__('Config parameter(s) missing'), null, 500);
         }
 
-        try {
-            $config = $this->stsConfigFactory->create(
-                [
-                    'accessKeyId' => $accessKey,
-                    'accessKeySecret' => $secretKey,
-                    'endpoint' => $endpoint
-                ]
-            );
-            $stsClient = $this->stsFactory->create($config);
-            $assumeRoleRequest = $this->roleRequestFactory->create([
-                'roleArn' => $arn,
-                'roleSessionName' => $this->context->getSessionName(),
-                'durationSeconds' => $lifetime
-            ]);
-            $runtimeOptions = $this->optionsFactory->create();
-
-            $response = $this->tokenResponseFactory->create();
-
-            $tokenResponse = $stsClient->assumeRoleWithOptions($assumeRoleRequest, $runtimeOptions);
+        $response = $this->tokenResponseFactory->create();
+        if ($this->cache->load(self::CACHE_TAG)) {
+            $tokenData = $this->serializer->unserialize($this->cache->load(self::CACHE_TAG));
+            $this->dataObjectHelper->populateWithArray($response, $tokenData, TokenResponseInterface::class);
             $response->setSuccess(true);
-            $response->setAccessKeyId($tokenResponse->body->credentials->accessKeyId);
-            $response->setAccessKeySecret($tokenResponse->body->credentials->accessKeySecret);
-            $response->setSecurityToken($tokenResponse->body->credentials->securityToken);
-            $response->setExpiration($tokenResponse->body->credentials->expiration);
-        } catch (TeaUnableRetryError $e) {
-            $response->setSuccess(false);
-            $response->setErrorMessage($e->getMessage());
-            $this->logger->error(__METHOD__ . ' >> Alibabacloud error: ' . print_r($e->getMessage(), true) . ' (' . print_r($e->getCode(), true) . ')');
-        } catch (\Exception $e) {
-            $response->setSuccess(false);
-            $response->setErrorMessage($e->getMessage());
-            $this->logger->error(__METHOD__ . ' >> ' . print_r($e->getMessage(), true) . ' (' . print_r($e->getCode(), true) . ')');
-        }
+        } else {
+            try {
+                $config = $this->stsConfigFactory->create(
+                    [
+                        'accessKeyId' => $accessKey,
+                        'accessKeySecret' => $secretKey,
+                        'endpoint' => $endpoint
+                    ]
+                );
+                $stsClient = $this->stsFactory->create($config);
+                $assumeRoleRequest = $this->roleRequestFactory->create([
+                    'roleArn' => $arn,
+                    'roleSessionName' => $this->context->getSessionName(),
+                    'durationSeconds' => $lifetime
+                ]);
+                $runtimeOptions = $this->optionsFactory->create();
 
+                $tokenResponse = $stsClient->assumeRoleWithOptions($assumeRoleRequest, $runtimeOptions);
+                $response->setSuccess(true);
+                $response->setAccessKeyId($tokenResponse->body->credentials->accessKeyId);
+                $response->setAccessKeySecret($tokenResponse->body->credentials->accessKeySecret);
+                $response->setSecurityToken($tokenResponse->body->credentials->securityToken);
+                $response->setExpiration($tokenResponse->body->credentials->expiration);
+
+                $responseArray = $this->objectProcessor->buildOutputDataArray($response, TokenResponseInterface::class);
+                $this->cache->save(
+                    $this->serializer->serialize($responseArray),
+                    self::CACHE_TAG,
+                    [self::CACHE_TAG],
+                    $lifetime - 10
+                );
+            } catch (TeaUnableRetryError $e) {
+                $response->setSuccess(false);
+                $response->setErrorMessage($e->getMessage());
+                $this->logger->error(__METHOD__ . ' >> Alibabacloud error: ' . print_r($e->getMessage(), true) . ' (' . print_r($e->getCode(), true) . ')');
+            } catch (\Exception $e) {
+                $response->setSuccess(false);
+                $response->setErrorMessage($e->getMessage());
+                $this->logger->error(__METHOD__ . ' >> ' . print_r($e->getMessage(), true) . ' (' . print_r($e->getCode(), true) . ')');
+            }
+        }
         return $response;
     }
 }

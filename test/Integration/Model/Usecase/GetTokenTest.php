@@ -31,8 +31,12 @@ class GetTokenTest extends TestCase
     protected GetTokenInterface|null $getToken = null;
 
     /** @setUp */
-    public function setUp(): void {
+    public function setUp(): void
+    {
         $this->objectManager = \Magento\TestFramework\Helper\Bootstrap::getObjectManager();
+
+        // clean up mock data and cache in between tests
+        $this->objectManager->create(\Magento\Framework\App\CacheInterface::class)->clean();
         StsClientMock::getInstance()->reset();
 
         $this->getToken = $this->objectManager->create(GetTokenInterface::class);
@@ -41,7 +45,8 @@ class GetTokenTest extends TestCase
     /**
      * @test
      */
-    public function missingConfig_throwsException() {
+    public function missingConfig_throwsException()
+    {
         $this->expectException(LocalizedException::class);
         $this->expectExceptionCode(500);
         $this->expectExceptionMessage('Config parameter(s) missing');
@@ -58,7 +63,8 @@ class GetTokenTest extends TestCase
      * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/session_name some-session-name-123
      * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/token_lifetime 1234
      */
-    public function alibabaCloudReturnsError() {
+    public function alibabaCloudReturnsError()
+    {
         StsClientMock::getInstance()->setMockException(400, 'InvalidParameter.DurationSeconds');
 
         $result = $this->getToken->execute();
@@ -81,8 +87,9 @@ class GetTokenTest extends TestCase
      * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/session_name some-session-name-123
      * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/token_lifetime 1234
      */
-    public function alibabaCloudReturnsToken() {
-        StsClientMock::getInstance()->setMockResponse([
+    public function alibabaCloudReturnsToken()
+    {
+        StsClientMock::getInstance()->addMockResponse([
             'body' => [
                 'RequestId' => '123',
                 'AssumedRoleUser' => [
@@ -107,5 +114,68 @@ class GetTokenTest extends TestCase
         $this->assertEquals('test-access-key-secret', $result->getAccessKeySecret());
         $this->assertEquals('test-expiration', $result->getExpiration());
         $this->assertEquals('test-security-token', $result->getSecurityToken());
+    }
+
+    /**
+     * @test
+     * @magentoConfigFixture current_store tijsdriven_alibabacloud/general/access_key_id some-id-123
+     * @magentoConfigFixture current_store tijsdriven_alibabacloud/general/access_key_secret some-secret-123
+     * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/endpoint some-endpoint-123
+     * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/role_arn some-arn-123
+     * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/session_name some-session-name-123
+     * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/token_lifetime 100
+     */
+    public function getCachedToken()
+    {
+        StsClientMock::getInstance()
+            ->addMockResponse([
+                'body' => [
+                    'RequestId' => '123',
+                    'AssumedRoleUser' => [
+                        'AssumedRoleId' => '123',
+                        'Arn' => '123',
+                    ],
+                    'Credentials' => [
+                        'AccessKeyId' => 'test-access-key-id',
+                        'AccessKeySecret' => 'test-access-key-secret',
+                        'Expiration' => 'test-expiration',
+                        'SecurityToken' => 'test-security-token',
+                    ]
+                ]
+            ])
+            ->addMockResponse([
+                'body' => [
+                    'RequestId' => '234',
+                    'AssumedRoleUser' => [
+                        'AssumedRoleId' => '234',
+                        'Arn' => '234',
+                    ],
+                    'Credentials' => [
+                        'AccessKeyId' => 'test-access-key-id-2',
+                        'AccessKeySecret' => 'test-access-key-secret-2',
+                        'Expiration' => 'test-expiration-2',
+                        'SecurityToken' => 'test-security-token-2',
+                    ]
+                ]
+            ]);
+
+        $result = $this->getToken->execute();
+        $secondResult = $this->getToken->execute();
+
+        $this->isInstanceOf(TokenResponseInterface::class);
+        $this->assertTrue($result->getSuccess());
+        $this->assertNull($result->getErrorMessage());
+        $this->assertEquals('test-access-key-id', $result->getAccessKeyId());
+        $this->assertEquals('test-access-key-secret', $result->getAccessKeySecret());
+        $this->assertEquals('test-expiration', $result->getExpiration());
+        $this->assertEquals('test-security-token', $result->getSecurityToken());
+
+        $this->isInstanceOf(TokenResponseInterface::class);
+        $this->assertTrue($secondResult->getSuccess());
+        $this->assertNull($secondResult->getErrorMessage());
+        $this->assertEquals('test-access-key-id', $secondResult->getAccessKeyId());
+        $this->assertEquals('test-access-key-secret', $secondResult->getAccessKeySecret());
+        $this->assertEquals('test-expiration', $secondResult->getExpiration());
+        $this->assertEquals('test-security-token', $secondResult->getSecurityToken());
     }
 }
