@@ -1,5 +1,5 @@
 {
-  "name": "tijsdriven/m2-module-alibabacloud-sts",
+  "name": "tijsdriven/m2-module-alibabacloud",
   "description": "Add AlibabaCloud STS token support to Magento",
   "type": "magento2-module",
   "version": "0.0.1",
@@ -17,8 +17,8 @@
       "./src/registration.php"
     ],
     "psr-4": {
-      "TijsDriven\\AlibabaCloudSts\\": "src/",
-      "TijsDriven\\AlibabaCloudSts\\Test\\": "test/"
+      "TijsDriven\\AlibabaCloud\\": "src/",
+      "TijsDriven\\AlibabaCloud\\Test\\": "test/"
     }
   },
   "require": {

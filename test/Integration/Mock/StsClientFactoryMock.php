@@ -14,6 +14,19 @@
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 
-use Magento\Framework\Component\ComponentRegistrar;
+declare(strict_types=1);
 
-ComponentRegistrar::register(ComponentRegistrar::MODULE, 'TijsDriven_AlibabaCloud', __DIR__);
+namespace TijsDriven\AlibabaCloud\Test\Integration\Mock;
+
+use TijsDriven\AlibabaCloud\Model\Factory\StsClientFactory;
+use AlibabaCloud\SDK\Sts\V20150401\Sts;
+
+class StsClientFactoryMock extends StsClientFactory
+{
+
+    public function create($config = []): Sts
+    {
+        return StsClientMock::getInstance($config);
+    }
+
+}

@@ -14,6 +14,18 @@
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 
-use Magento\Framework\Component\ComponentRegistrar;
+declare(strict_types=1);
 
-ComponentRegistrar::register(ComponentRegistrar::MODULE, 'TijsDriven_AlibabaCloud', __DIR__);
+namespace TijsDriven\AlibabaCloud\Model\Factory;
+
+use AlibabaCloud\Tea\Utils\Utils\RuntimeOptions;
+
+class RuntimeOptionsFactory
+{
+
+    public function create($config = []): RuntimeOptions
+    {
+        return new RuntimeOptions($config);
+    }
+
+}

@@ -16,13 +16,13 @@
 
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
   <system>
-    <section id="tdd_alibabacloud_oss_media" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+    <section id="tijsdriven_alibabacloud" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
       <class>separator-top</class>
       <label>AlibabaCloud</label>
       <tab>tijsdriven</tab>
-      <resource>TijsDriven_AlibabaCloudSts::configuration</resource>
+      <resource>TijsDriven_AlibabaCloud::configuration</resource>
       <group id="general" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
-        <label>AlibabaCloud Account Configuration</label>
+        <label>AlibabaCloud Account</label>
         <field id="access_key_id" translate="label" type="obscure" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
           <label>Access Key ID</label>
         </field>
@@ -31,9 +31,22 @@
         </field>
       </group>
       <group id="sts_token" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
+        <label>AlibabaCloud STS Token</label>
+        <field id="endpoint" translate="label" type="obscure" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+          <label>AlibabaCloud STS Endpoint</label>
+          <comment><![CDATA[Default: "sts.cn-hangzhou.aliyuncs.com"]]></comment>
+        </field>
+        <field id="role_arn" translate="label" type="obscure" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+          <label>Role ARN</label>
+          <comment><![CDATA[Specify role ARN created for STS token requests]]></comment>
+        </field>
+        <field id="session_name" translate="label" type="obscure" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+          <label>Session Name</label>
+          <comment><![CDATA[Used to distinguish different tokens (Optional)]]></comment>
+        </field>
         <field id="token_lifetime" translate="label comment" type="text" sortOrder="500" showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
           <label>Token Lifetime</label>
-          <comment>In seconds (default: 3600)</comment>
+          <comment><![CDATA[In seconds (default: 3600)]]></comment>
           <validate>validate-zero-or-greater validate-digits</validate>
         </field>
       </group>

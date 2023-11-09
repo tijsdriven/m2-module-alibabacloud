@@ -5,7 +5,7 @@ such as OSS.
 # Installation & Configuration
 Install using composer
 ```
-composer require tijsdriven/m2-module-alibabacloud-sts
+composer require tijsdriven/m2-module-alibabacloud
 ```
 
 Configure in Magento by adding the AlibabaCloud account Access Key ID and Access Key Secret. 
