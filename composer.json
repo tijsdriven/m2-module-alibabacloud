@@ -3,13 +3,13 @@
   "description": "Add AlibabaCloud STS token support to Magento",
   "type": "magento2-module",
   "version": "0.0.1",
-  "license": "proprietary",
+  "license": "MIT",
   "authors": [
     {
       "name": "Tijs van Raaij",
       "email": "magento@tijsdriven.dev",
       "homepage": "https://magento.tijsdriven.dev",
-      "role": "Author"
+      "role": "Developer"
     }
   ],
   "autoload": {
