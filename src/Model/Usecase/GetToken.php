@@ -31,9 +31,9 @@ use TijsDriven\AlibabaCloud\Model\Factory\AssumeRoleRequestFactory;
 use TijsDriven\AlibabaCloud\Model\Factory\RuntimeOptionsFactory;
 use TijsDriven\AlibabaCloud\Model\Factory\StsClientFactory;
 use TijsDriven\AlibabaCloud\Model\Factory\StsConfigFactory;
+use TijsDriven\AlibabaCloud\Model\Config\DeployConfig;
 use TijsDriven\AlibabaCloud\Model\Entity\TokenResponseFactory;
-use TijsDriven\AlibabaCloud\Model\Config\Context;
-use function print_r;
+use TijsDriven\AlibabaCloud\Model\Entity\TokenResponse;
 
 class GetToken implements GetTokenInterface
 {
@@ -51,7 +51,7 @@ class GetToken implements GetTokenInterface
         protected DataObjectHelper         $dataObjectHelper,
         protected DataObjectProcessor      $objectProcessor,
         protected SerializerInterface      $serializer,
-        protected Context                  $context,
+        protected DeployConfig             $deployConfig,
         protected LoggerInterface          $logger
     )
     {
@@ -63,17 +63,14 @@ class GetToken implements GetTokenInterface
      */
     public function execute(): \TijsDriven\AlibabaCloud\Api\Data\TokenResponseInterface
     {
-        $accessKey = $this->context->getAccessKey();
-        $secretKey = $this->context->getSecretKey();
-        $endpoint = $this->context->getEndpoint();
-        $arn = $this->context->getRoleArn();
-        $lifetime = $this->context->getTokenLifetime() ?: self::DEFAULT_TOKEN_LIFETIME_IN_SECONDS;
+        $accessKey = $this->deployConfig->getAccessKey();
+        $secretKey = $this->deployConfig->getSecretKey();
+        $endpoint = $this->deployConfig->getStsEndpoint();
+        $arn = $this->deployConfig->getArnRole();
+        $regionId = $this->deployConfig->getRegion();
+        $lifetime = $this->deployConfig->getTokenLifetime() ?: self::DEFAULT_TOKEN_LIFETIME_IN_SECONDS;
 
-        if (empty($accessKey) ||
-            empty($secretKey) ||
-            empty($endpoint) ||
-            empty($arn)
-        ) {
+        if (empty($accessKey) || empty($secretKey) || empty($endpoint) ||empty($arn)) {
             throw new LocalizedException(__('Config parameter(s) missing'), null, 500);
         }
 
@@ -84,45 +81,65 @@ class GetToken implements GetTokenInterface
             $response->setSuccess(true);
         } else {
             try {
-                $config = $this->stsConfigFactory->create(
-                    [
-                        'accessKeyId' => $accessKey,
-                        'accessKeySecret' => $secretKey,
-                        'endpoint' => $endpoint
-                    ]
-                );
+                $config = $this->stsConfigFactory->create();
+
+                $config->regionId = $regionId;
+                $config->accessKeyId = $accessKey;
+                $config->accessKeySecret = $secretKey;
+                $config->endpoint = $endpoint;
+
                 $stsClient = $this->stsFactory->create($config);
+
                 $assumeRoleRequest = $this->roleRequestFactory->create([
                     'roleArn' => $arn,
-                    'roleSessionName' => $this->context->getSessionName(),
+                    'roleSessionName' => $this->deployConfig->getSessionName(),
                     'durationSeconds' => $lifetime
                 ]);
                 $runtimeOptions = $this->optionsFactory->create();
 
                 $tokenResponse = $stsClient->assumeRoleWithOptions($assumeRoleRequest, $runtimeOptions);
+
                 $response->setSuccess(true);
                 $response->setAccessKeyId($tokenResponse->body->credentials->accessKeyId);
                 $response->setAccessKeySecret($tokenResponse->body->credentials->accessKeySecret);
                 $response->setSecurityToken($tokenResponse->body->credentials->securityToken);
                 $response->setExpiration($tokenResponse->body->credentials->expiration);
 
-                $responseArray = $this->objectProcessor->buildOutputDataArray($response, TokenResponseInterface::class);
-                $this->cache->save(
-                    $this->serializer->serialize($responseArray),
-                    self::CACHE_TAG,
-                    [self::CACHE_TAG],
-                    $lifetime - 10
-                );
+                $this->cacheToken($response, $lifetime);
             } catch (TeaUnableRetryError $e) {
                 $response->setSuccess(false);
                 $response->setErrorMessage($e->getMessage());
-                $this->logger->error(__METHOD__ . ' >> Alibabacloud error: ' . print_r($e->getMessage(), true) . ' (' . print_r($e->getCode(), true) . ')');
+                $this->logger->error(
+                    __METHOD__ . ' >> Alibabacloud error: ' .
+                    print_r($e->getMessage(), true) .
+                    ' (' . print_r($e->getCode(), true) . ')'
+                );
             } catch (\Exception $e) {
                 $response->setSuccess(false);
                 $response->setErrorMessage($e->getMessage());
-                $this->logger->error(__METHOD__ . ' >> ' . print_r($e->getMessage(), true) . ' (' . print_r($e->getCode(), true) . ')');
+                $this->logger->error(
+                    __METHOD__ . ' >> ' .
+                    print_r($e->getMessage(), true) .
+                    ' (' . print_r($e->getCode(), true) . ')'
+                );
             }
         }
         return $response;
+    }
+
+    /**
+     * @param TokenResponse $response
+     * @param int|string $lifetime
+     * @return void
+     */
+    public function cacheToken(TokenResponse $response, int|string $lifetime): void
+    {
+        $responseArray = $this->objectProcessor->buildOutputDataArray($response, TokenResponseInterface::class);
+        $this->cache->save(
+            $this->serializer->serialize($responseArray),
+            self::CACHE_TAG,
+            [self::CACHE_TAG],
+            $lifetime - 10
+        );
     }
 }
