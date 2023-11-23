@@ -19,11 +19,12 @@ declare(strict_types=1);
 namespace TijsDriven\AlibabaCloud\Model\Factory;
 
 use AlibabaCloud\SDK\Sts\V20150401\Sts;
+use Darabonba\OpenApi\Models\Config;
 
 class StsClientFactory
 {
 
-    public function create(\Darabonba\OpenApi\Models\Config $config): Sts
+    public function create(Config $config): Sts
     {
         return new Sts($config);
     }

@@ -27,7 +27,7 @@ class TokenResponse extends DataObject implements TokenResponseInterface
     /**
      * @inheritDoc
      */
-    public function setSuccess(bool $success): \TijsDriven\AlibabaCloud\Api\Data\TokenResponseInterface
+    public function setSuccess(bool $success): TokenResponseInterface
     {
         return $this->setData(self::SUCCESS, $success);
     }
@@ -43,7 +43,7 @@ class TokenResponse extends DataObject implements TokenResponseInterface
     /**
      * @inheritDoc
      */
-    public function setErrorMessage(?string $errorMessage): \TijsDriven\AlibabaCloud\Api\Data\TokenResponseInterface
+    public function setErrorMessage(?string $errorMessage): TokenResponseInterface
     {
         return $this->setData(self::ERROR_MESSAGE, $errorMessage);
     }
@@ -59,7 +59,7 @@ class TokenResponse extends DataObject implements TokenResponseInterface
     /**
      * @inheritDoc
      */
-    public function setAccessKeyId(?string $accessKeyId): \TijsDriven\AlibabaCloud\Api\Data\TokenResponseInterface
+    public function setAccessKeyId(?string $accessKeyId): TokenResponseInterface
     {
         return $this->setData(self::ACCESS_KEY_ID, $accessKeyId);
     }
@@ -75,7 +75,7 @@ class TokenResponse extends DataObject implements TokenResponseInterface
     /**
      * @inheritDoc
      */
-    public function setAccessKeySecret(?string $accessKeySecret): \TijsDriven\AlibabaCloud\Api\Data\TokenResponseInterface
+    public function setAccessKeySecret(?string $accessKeySecret): TokenResponseInterface
     {
         return $this->setData(self::ACCESS_KEY_SECRET, $accessKeySecret);
     }
@@ -91,7 +91,7 @@ class TokenResponse extends DataObject implements TokenResponseInterface
     /**
      * @inheritDoc
      */
-    public function setSecurityToken(?string $securityToken): \TijsDriven\AlibabaCloud\Api\Data\TokenResponseInterface
+    public function setSecurityToken(?string $securityToken): TokenResponseInterface
     {
         return $this->setData(self::SECURITY_TOKEN, $securityToken);
     }
@@ -107,7 +107,7 @@ class TokenResponse extends DataObject implements TokenResponseInterface
     /**
      * @inheritDoc
      */
-    public function setExpiration(?string $expiration): \TijsDriven\AlibabaCloud\Api\Data\TokenResponseInterface
+    public function setExpiration(?string $expiration): TokenResponseInterface
     {
         return $this->setData(self::EXPIRATION, $expiration);
     }
