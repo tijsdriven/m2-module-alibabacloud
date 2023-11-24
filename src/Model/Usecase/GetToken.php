@@ -71,7 +71,7 @@ class GetToken implements GetTokenInterface
         $lifetime = $this->deployConfig->getTokenLifetime() ?: self::DEFAULT_TOKEN_LIFETIME_IN_SECONDS;
 
         if (empty($accessKey) || empty($secretKey) || empty($endpoint) ||empty($arn)) {
-            throw new LocalizedException(__('Config parameter(s) missing'), null, 500);
+            throw new LocalizedException(__('Missing AlibabaCloud configuration, check deploy config parameter(s)'), null, 500);
         }
 
         $response = $this->tokenResponseFactory->create();

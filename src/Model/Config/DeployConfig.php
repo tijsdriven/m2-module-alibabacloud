@@ -40,12 +40,20 @@ class DeployConfig
 
     public function getStsEndpoint(): string
     {
-        return $this->stsEndpoint->get((string)$this->config->get(self::PATH_REGION), (string)$this->config->get(self::PATH_CONNECTION_TYPE));
+        return $this->stsEndpoint->get(
+            (string)$this->config->get(self::PATH_REGION),
+            (string)$this->config->get(self::PATH_CONNECTION_TYPE)
+        );
     }
 
     public function getRegion(): string
     {
         return (string)$this->config->get(self::PATH_REGION);
+    }
+
+    public function getConnectionType(): string
+    {
+        return (string)$this->config->get(self::PATH_CONNECTION_TYPE);
     }
 
     public function getAccessKey(): string

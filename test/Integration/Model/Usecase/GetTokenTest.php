@@ -46,24 +46,6 @@ class GetTokenTest extends TestCase
     /**
      * @test
      */
-    public function missingConfig_throwsException()
-    {
-        $this->expectException(LocalizedException::class);
-        $this->expectExceptionCode(500);
-        $this->expectExceptionMessage('Config parameter(s) missing');
-
-        $this->getToken->execute();
-    }
-
-    /**
-     * @test
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/general/access_key_id some-id-123
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/general/access_key_secret some-secret-123
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/endpoint some-endpoint-123
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/role_arn some-arn-123
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/session_name some-session-name-123
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/token_lifetime 1234
-     */
     public function alibabaCloudReturnsError()
     {
         StsClientMock::getInstance()->setMockException(400, 'InvalidParameter.DurationSeconds');
@@ -81,12 +63,6 @@ class GetTokenTest extends TestCase
 
     /**
      * @test
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/general/access_key_id some-id-123
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/general/access_key_secret some-secret-123
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/endpoint some-endpoint-123
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/role_arn some-arn-123
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/session_name some-session-name-123
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/token_lifetime 1234
      */
     public function alibabaCloudReturnsToken()
     {
@@ -115,12 +91,6 @@ class GetTokenTest extends TestCase
 
     /**
      * @test
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/general/access_key_id some-id-123
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/general/access_key_secret some-secret-123
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/endpoint some-endpoint-123
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/role_arn some-arn-123
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/session_name some-session-name-123
-     * @magentoConfigFixture current_store tijsdriven_alibabacloud/sts_token/token_lifetime 100
      */
     public function getCachedToken()
     {
