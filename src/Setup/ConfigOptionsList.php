@@ -28,13 +28,13 @@ use function var_dump;
 
 class ConfigOptionsList implements ConfigOptionsListInterface
 {
-    const OPTION_ALIBABACLOUD_REGION = 'alibabacloud-region';
-    const OPTION_ALIBABACLOUD_CONNECTION_TYPE = 'alibabacloud-connection-type';
-    const OPTION_ALIBABACLOUD_ACCESS_KEY = 'alibabacloud-access-key';
-    const OPTION_ALIBABACLOUD_SECRET_KEY = 'alibabacloud-secret-key';
-    const OPTION_ALIBABACLOUD_ARN = 'alibabacloud-arn';
-    const OPTION_ALIBABACLOUD_TOKEN_LIFETIME = 'alibabacloud-token-lifetime';
-    const OPTION_ALIBABACLOUD_SESSION_NAME = 'alibabacloud-session-name';
+    private const OPTION_ALIBABACLOUD_REGION = 'alibabacloud-region';
+    private const OPTION_ALIBABACLOUD_CONNECTION_TYPE = 'alibabacloud-connection-type';
+    private const OPTION_ALIBABACLOUD_ACCESS_KEY = 'alibabacloud-access-key';
+    private const OPTION_ALIBABACLOUD_SECRET_KEY = 'alibabacloud-secret-key';
+    private const OPTION_ALIBABACLOUD_ARN = 'alibabacloud-arn';
+    private const OPTION_ALIBABACLOUD_TOKEN_LIFETIME = 'alibabacloud-token-lifetime';
+    private const OPTION_ALIBABACLOUD_SESSION_NAME = 'alibabacloud-session-name';
 
     protected static $map = [
         self::OPTION_ALIBABACLOUD_REGION => DeployConfig::PATH_REGION,
@@ -110,11 +110,6 @@ class ConfigOptionsList implements ConfigOptionsListInterface
      */
     public function createConfig(array $options, DeploymentConfig $deploymentConfig)
     {
-//        $alibabaConfigExists = isset($deploymentConfig->getConfigData()['alibabacloud']);
-//        if ($alibabaConfigExists && !isset($options['region'])) {
-//            return [];
-//        }
-
         $configData = new ConfigData(ConfigFilePool::APP_ENV);
         $configData->setOverrideWhenSave(true);
 
